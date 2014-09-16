@@ -1,3 +1,9 @@
+$master_script = <<SCRIPT
+#!/bin/bash
+apt-get update
+apt-get install -y libxml2-dev libxslt1-dev
+SCRIPT
+
 require 'ipaddr'
 
 base_ip = IPAddr.new(ENV['IP'] || "192.168.8.80")
@@ -41,13 +47,16 @@ Vagrant.configure("2") do |global_config|
           hostname = 'saio'
       end
       config.vm.hostname = hostname
-      config.vm.box = "swift-all-in-one"
+      config.vm.box = "saio"
       config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+      config.vm.provision :shell, :inline => $master_script
       config.vm.network :private_network, ip: ip
       config.vm.provider :virtualbox do |vb|
-        vb.name = "vagrant-#{hostname}-#{current_datetime}"
+        # vb.name = "vagrant-#{hostname}-#{current_datetime}"
+        vb.name = "saio"
         vb.memory = 768
       end
+      config.vm.provision :shell, :inline => $master_script
       config.vm.provision :chef_solo do |chef|
         chef.add_recipe "swift"
         chef.json = local_config
